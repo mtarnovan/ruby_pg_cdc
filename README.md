@@ -29,6 +29,76 @@ The default config is:
   }
 ```
 
+Run `ruby test.rb` then make some queries (inserts, deletes etc.) on the specified database.
+
+Example:
+
+From a psql console:
+```text
+$psql postgres
+psql (10.5)
+Type "help" for help.
+postgres=# \d foo
+                                      Table "public.foo"
+ Column |            Type             | Collation | Nullable |            Default
+--------+-----------------------------+-----------+----------+--------------------------------
+ a      | integer                     |           | not null | nextval('foo_a_seq'::regclass)
+ b      | character varying(30)       |           |          |
+ c      | timestamp without time zone |           | not null |
+Indexes:
+    "foo_pkey" PRIMARY KEY, btree (a, c)
+
+postgres=# insert into foo(b, c) values('blabla', now());
+INSERT 0 1
+postgres=# delete from foo;
+DELETE 1
+```
+
+```text
+$ ruby test.rb
+I, [2018-10-03T18:09:49.774895 #75649]  INFO -- : host=localhost dbname=postgres port=5432 user=postgres slotname=pg_logical_test status_interval=10 (seconds)
+W, [2018-10-03T18:09:49.779846 #75649]  WARN -- : pg-logical: tried to create replication slot pg_logical_test, but it already exists
+Received: {
+  "change": [
+    {
+      "kind": "insert",
+      "schema": "public",
+      "table": "foo",
+      "columnnames": [
+        "a",
+        "b",
+        "c"
+      ],
+      "columnvalues": [
+        1,
+        "blabla",
+        "2018-10-03 18:09:58.859627"
+      ]
+    }
+  ]
+}
+Received: {
+  "change": [
+    {
+      "kind": "delete",
+      "schema": "public",
+      "table": "foo",
+      "oldkeys": {
+        "keynames": [
+          "a",
+          "c"
+        ],
+        "keyvalues": [
+          1,
+          "2018-10-03 18:09:58.859627"
+        ]
+      }
+    }
+  ]
+}
+
+```
+
 ## How it works
 
 After connecting we create a replication slot (if `config.create_slot` is true), then execute `IDENTIFY_SYSTEM` to get

@@ -28,7 +28,6 @@ class PgReplicationClient
   }.freeze
 
   DEFAULT_LOGGER = Logger.new(STDOUT)
-  # DEFAULT_LOGGER.level = Logger::DEBUG
   DEFAULT_LOGGER.level = Logger::INFO
 
   attr_reader :logger, :conf, :thread, :conn
@@ -39,9 +38,8 @@ class PgReplicationClient
     @callback = callback
     @conn_utils = ConnUtils.new(conf: @conf, logger: @logger)
     @write_lock = Mutex.new
-    logger.info <<~INFO
-      host=#{@conf.host} dbname=#{@conf.dbname} port=#{@conf.port} user=#{@conf.user} slotname=#{@conf.slotname} status_interval=#{@conf.status_interval}(sec)"
-    INFO
+    logger.info "host=#{@conf.host} dbname=#{@conf.dbname} port=#{@conf.port} user=#{@conf.user} " \
+                "slotname=#{@conf.slotname} status_interval=#{@conf.status_interval} (seconds)"
   end
 
   def start

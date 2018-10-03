@@ -2,10 +2,9 @@
 
 require_relative 'pg_replication_client'
 
-# callback = ->(message) { puts "Received: #{message}" }
-# pgl = PgReplicationClient.new(callback: callback)
+callback = ->(message) { puts "#{JSON.pretty_generate(JSON.parse(message.wal_data))}" }
+replication_client = PgReplicationClient.new(callback: callback)
 
-replication_client = PgReplicationClient.new
 trap('INT') { replication_client.shutdown }
 
 replication_client.start
